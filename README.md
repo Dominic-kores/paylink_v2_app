@@ -143,9 +143,9 @@ M-Pesa callbacks.
 
 ## Live Application
 
-Frontend: Add your Vercel deployment URL.
+Frontend: https://paylink-v2-app.vercel.app
 
-Backend: Add your Railway deployment URL.
+Backend: https://paylinkv2app-production.up.railway.app
 
 ## Security
 
