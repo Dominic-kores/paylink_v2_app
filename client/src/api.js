@@ -1,6 +1,10 @@
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+// Server routes live under /api; append it if the env value omits it.
+const API_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:3001/api"
+)
+  .replace(/\/+$/, "")
+  .replace(/(?<!\/api)$/, "/api");
 
 export async function api(path, options = {}) {
   const token = localStorage.getItem("paylink_token");
