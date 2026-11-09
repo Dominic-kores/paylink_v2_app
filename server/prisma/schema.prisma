@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  passwordHash String
+  phone        String?
+  paymentLinks PaymentLink[]
+  notifications Notification[]
+  createdAt    DateTime      @default(now())
+}
+
+model PaymentLink {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  description String
+  amount      Int
+  active      Boolean   @default(true)
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+
+  payments    Payment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Payment {
+  id                  String        @id @default(cuid())
+  checkoutRequestId   String?       @unique
+  merchantRequestId   String?
+  paymentLinkId       String
+  paymentLink         PaymentLink   @relation(fields: [paymentLinkId], references: [id])
+
+  amount              Int
+  payerPhone          String
+  payerEmail          String?
+  status              PaymentStatus @default(PENDING)
+
+  mpesaReceiptNumber  String?       @unique
+  failureReason       String?
+  paidAt              DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  @@index([paymentLinkId, status, createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, read, createdAt])
+}
+
